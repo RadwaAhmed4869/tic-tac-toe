@@ -6,15 +6,19 @@ const initGameBoard = [
   [null, null, null],
 ];
 
-export default function GameBoard() {
+export default function GameBoard({ onClickSquare, activeSymbol }) {
   const [gameBoard, SetGameBoard] = useState(initGameBoard);
 
   function handleClick(row, col) {
     SetGameBoard((prevGameBoard) => {
-      const updatedGameBoard = [...prevGameBoard.map((innerArray) => [...innerArray])];     //Create (deep) copy
-      updatedGameBoard[row][col] = "X";
+      const updatedGameBoard = [
+        ...prevGameBoard.map((innerArray) => [...innerArray]),
+      ]; //Create (deep) copy
+      updatedGameBoard[row][col] = activeSymbol;
       return updatedGameBoard;
     });
+
+    onClickSquare();
   }
 
   return (
