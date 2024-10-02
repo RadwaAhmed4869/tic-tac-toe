@@ -44,7 +44,7 @@ function App() {
         </ol>
         <GameBoard onClickSquare={handleActivePlayer} turns={gameTurns} />
       </div>
-      <Log></Log>
+      <Log turns={gameTurns}/>
     </main>
   );
 }
