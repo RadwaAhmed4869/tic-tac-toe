@@ -7,7 +7,12 @@ import GameOver from "./Components/GameOver";
 
 import { WINNING_COMBINATIONS } from "./winning-combinations";
 
-const initGameBoard = [
+const PLAYERS = {
+  X: "Player1",
+  O: "Player2",
+};
+
+const INIT_GAME_BOARD = [
   [null, null, null],
   [null, null, null],
   [null, null, null],
@@ -23,19 +28,7 @@ function getActivePlayer(gameTurns) {
   return currentPlayer;
 }
 
-function App() {
-  const [gameTurns, setGameTurns] = useState([]);
-  const activePlayer = getActivePlayer(gameTurns);
-
-  let gameBoard = [...initGameBoard.map((innerArray) => [...innerArray])]; // deep copy
-
-  for (const turn of gameTurns) {
-    const { square, player } = turn;
-    const { row, col } = square;
-
-    gameBoard[row][col] = player;
-  }
-
+function deriveWinner(gameBoard, players) {
   let winner;
 
   // we don't need to check for a winner in handleActivePlayer() function (when the button is clicked)
@@ -53,9 +46,42 @@ function App() {
       firstSquareSymbol === secondSquareSymbol &&
       firstSquareSymbol === thirdSquareSymbol
     ) {
-      winner = firstSquareSymbol;
+      winner = players[firstSquareSymbol];
     }
   }
+  return winner;
+}
+
+function deriveGameBoard(gameTurns) {
+  let gameBoard = [...INIT_GAME_BOARD.map((innerArray) => [...innerArray])]; // deep copy
+
+  for (const turn of gameTurns) {
+    const { square, player } = turn;
+    const { row, col } = square;
+
+    gameBoard[row][col] = player;
+  }
+  return gameBoard;
+}
+
+function App() {
+  // states
+  const [players, setPlayers] = useState(PLAYERS);
+
+  const [gameTurns, setGameTurns] = useState([]);
+  //
+
+  function handleChangeName(symbol, playerName) {
+    setPlayers((prevNames) => {
+      return { ...prevNames, [symbol]: playerName };
+    });
+  }
+
+  const activePlayer = getActivePlayer(gameTurns);
+
+  const gameBoard = deriveGameBoard(gameTurns);
+
+  const winner = deriveWinner(gameBoard, players);
 
   // it's a draw if we played all 9 turns with no winner
   let hasDraw = gameTurns.length === 9 && !winner;
@@ -82,14 +108,16 @@ function App() {
       <div id="game-container">
         <ol id="players" className="highlight-player">
           <Player
-            initName="Player 1"
+            initName={PLAYERS.X}
             symbol="X"
             isActive={activePlayer === "X"}
+            onChangeName={handleChangeName}
           />
           <Player
-            initName="Player 2"
+            initName={PLAYERS.O}
             symbol="O"
             isActive={activePlayer === "O"}
+            onChangeName={handleChangeName}
           />
         </ol>
         {(winner || hasDraw) && (
