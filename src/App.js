@@ -4,6 +4,14 @@ import Player from "./Components/Player";
 import GameBoard from "./Components/GameBoard";
 import Log from "./Components/Log";
 
+import { WINNING_COMBINATIONS } from "./winning-combinations";
+
+const initGameBoard = [
+  [null, null, null],
+  [null, null, null],
+  [null, null, null],
+];
+
 function getActivePlayer(gameTurns) {
   let currentPlayer = "X";
 
@@ -16,12 +24,39 @@ function getActivePlayer(gameTurns) {
 
 function App() {
   const [gameTurns, setGameTurns] = useState([]);
-  // const [activePlayer, setActivePlayer] = useState("X");
   const activePlayer = getActivePlayer(gameTurns);
 
-  function handleActivePlayer(rowIndex, colIndex) {
-    // setActivePlayer((preActivePlayer) => (preActivePlayer === "X" ? "O" : "X"));
+  let gameBoard = initGameBoard;
 
+  for (const turn of gameTurns) {
+    const { square, player } = turn;
+    const { row, col } = square;
+
+    gameBoard[row][col] = player;
+  }
+
+  let winner;
+
+  // we don't need to check for a winner in handleActivePlayer() function (when the button is clicked)
+  // we can check just inside the App() function 'cuz it gets re-executed whenever gameTurns state changes
+  for (const combination of WINNING_COMBINATIONS) {
+    const firstSquareSymbol =
+      gameBoard[combination[0].row][combination[0].column];
+    const secondSquareSymbol =
+      gameBoard[combination[1].row][combination[1].column];
+    const thirdSquareSymbol =
+      gameBoard[combination[2].row][combination[2].column];
+
+    if (
+      firstSquareSymbol &&
+      firstSquareSymbol === secondSquareSymbol &&
+      firstSquareSymbol === thirdSquareSymbol
+    ) {
+      winner = firstSquareSymbol;
+    }
+  }
+
+  function handleActivePlayer(rowIndex, colIndex) {
     setGameTurns((prevTurns) => {
       const currentPlayer = getActivePlayer(prevTurns);
 
@@ -49,7 +84,8 @@ function App() {
             isActive={activePlayer === "O"}
           />
         </ol>
-        <GameBoard onClickSquare={handleActivePlayer} turns={gameTurns} />
+        {winner && <p>You won, {winner}!</p>}
+        <GameBoard onClickSquare={handleActivePlayer} board={gameBoard} />
       </div>
       <Log turns={gameTurns} />
     </main>
