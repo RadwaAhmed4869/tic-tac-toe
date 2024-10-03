@@ -3,6 +3,7 @@ import { useState } from "react";
 import Player from "./Components/Player";
 import GameBoard from "./Components/GameBoard";
 import Log from "./Components/Log";
+import GameOver from "./Components/GameOver";
 
 import { WINNING_COMBINATIONS } from "./winning-combinations";
 
@@ -56,6 +57,9 @@ function App() {
     }
   }
 
+  // it's a draw if we played all 9 turns with no winner
+  let hasDraw = gameTurns.length === 9 && !winner;
+
   function handleActivePlayer(rowIndex, colIndex) {
     setGameTurns((prevTurns) => {
       const currentPlayer = getActivePlayer(prevTurns);
@@ -84,7 +88,7 @@ function App() {
             isActive={activePlayer === "O"}
           />
         </ol>
-        {winner && <p>You won, {winner}!</p>}
+        {(winner || hasDraw) && <GameOver winner={winner} />}
         <GameBoard onClickSquare={handleActivePlayer} board={gameBoard} />
       </div>
       <Log turns={gameTurns} />
